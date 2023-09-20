@@ -1,6 +1,6 @@
 from functions.get_accounts import get_accounts
 from functions.lambda_client import client
-from functions.data import init_settings_table
+from functions.data import init_settings_table, init_account_table
 import json
 
 
@@ -28,8 +28,16 @@ def handler(event, context):
     c=0
     accounts_to_quest = []
     account_groups = []
+    accounts_table = init_account_table()
     for account in get_accounts():
         if int(account, 16)%target_invocation != current_invocation: continue
+        accounts_table.update_item(
+            Key={"address_": account},
+            UpdateExpression="SET questing = :questing",
+            ExpressionAttributeValues={
+                ":questing": False
+            }
+        )
         if c==10: 
             account_groups.append(accounts_to_quest)
             accounts_to_quest = []
