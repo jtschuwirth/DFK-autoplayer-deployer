@@ -10,6 +10,7 @@ def handler(event, context):
     settings = settings_table.get_item(Key={"key_": "autoplayer_settings"})["Item"]
     current_invocation = int(settings["current_invocation"])
     target_invocation = int(settings["target_invocations"])
+    
     settings_table.update_item(
         Key={"key_": "autoplayer_settings"},
         UpdateExpression="SET current_invocation = :current_invocation",
@@ -51,6 +52,6 @@ def handler(event, context):
         client.invoke(
             FunctionName='dfk-autoplayer',
             InvocationType='Event',
-            Payload= json.dumps({"users": account_group})
+            Payload= json.dumps({"users": account_group, "chain": "dfk"})
         )
 
