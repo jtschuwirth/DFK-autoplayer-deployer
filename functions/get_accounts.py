@@ -16,7 +16,7 @@ def get_accounts(professions):
     accounts = []
     account_table = init_account_table()
     scan_response = account_table.scan(
-            FilterExpression="enabled_quester = :enabled AND profession IN :professions",
+            FilterExpression="enabled_quester = :enabled AND profession IN (:professions)",
             ExpressionAttributeValues={
                 ":enabled": True,
                 ":professions": professions
