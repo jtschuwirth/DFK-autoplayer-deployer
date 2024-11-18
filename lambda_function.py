@@ -6,10 +6,16 @@ import json
 
 
 def handler(event, context):
+    setup = event["setup"] if "setup" in event else "traditional"
     settings_table = init_settings_table()
-    settings = settings_table.get_item(Key={"key_": "autoplayer_settings"})["Item"]
-    current_invocation = int(settings["current_invocation"])
-    target_invocation = int(settings["target_invocations"])
+    if setup == "traditional":
+        settings = settings_table.get_item(Key={"key_": "autoplayer_settings"})["Item"]
+        current_invocation = int(settings["current_invocation"])
+        target_invocation = int(settings["target_invocations"])
+    elif setup == "short":
+        settings = settings_table.get_item(Key={"key_": "autoplayer_short_settings"})["Item"]
+        current_invocation = int(settings["current_invocation"])
+        target_invocation = int(settings["target_invocations"])
     
     settings_table.update_item(
         Key={"key_": "autoplayer_settings"},
@@ -30,7 +36,11 @@ def handler(event, context):
     accounts_to_quest = []
     account_groups = []
     accounts_table = init_account_table()
-    for account in get_accounts():
+    if setup == "traditional":
+        accounts_to_quest = get_accounts(["mining", "gardening"])
+    elif setup == "short":
+        accounts_to_quest = get_accounts(["fishing", "foraging"])
+    for account in accounts_to_quest:
         if int(account, 16)%target_invocation != current_invocation: continue
         accounts_table.update_item(
             Key={"address_": account},

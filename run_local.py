@@ -1,3 +1,5 @@
 from lambda_function import handler
 
-handler("", "")
+handler({
+    "setup": "traditional"
+}, "")
