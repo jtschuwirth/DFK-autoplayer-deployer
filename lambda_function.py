@@ -10,39 +10,56 @@ def handler(event, context):
     settings_table = init_settings_table()
     if setup == "traditional":
         settings = settings_table.get_item(Key={"key_": "autoplayer_settings"})["Item"]
-        current_invocation = int(settings["current_invocation"])
-        target_invocation = int(settings["target_invocations"])
     elif setup == "short":
         settings = settings_table.get_item(Key={"key_": "autoplayer_short_settings"})["Item"]
-        current_invocation = int(settings["current_invocation"])
-        target_invocation = int(settings["target_invocations"])
+
+    current_invocation = int(settings["current_invocation"])
+    target_invocation = int(settings["target_invocations"])
     
-    settings_table.update_item(
-        Key={"key_": "autoplayer_settings"},
-        UpdateExpression="SET current_invocation = :current_invocation",
-        ExpressionAttributeValues={
-            ":current_invocation": current_invocation+1
-        }
-    )
-    if target_invocation-1 <= current_invocation: 
+    if setup == "traditional":
         settings_table.update_item(
             Key={"key_": "autoplayer_settings"},
             UpdateExpression="SET current_invocation = :current_invocation",
             ExpressionAttributeValues={
-                ":current_invocation": 0
+                ":current_invocation": current_invocation+1
             }
         )
+        if target_invocation-1 <= current_invocation: 
+            settings_table.update_item(
+                Key={"key_": "autoplayer_settings"},
+                UpdateExpression="SET current_invocation = :current_invocation",
+                ExpressionAttributeValues={
+                    ":current_invocation": 0
+                }
+            )
+    elif setup == "short":
+        settings_table.update_item(
+            Key={"key_": "autoplayer_short_settings"},
+            UpdateExpression="SET current_invocation = :current_invocation",
+            ExpressionAttributeValues={
+                ":current_invocation": current_invocation+1
+            }
+        )
+        if target_invocation-1 <= current_invocation: 
+            settings_table.update_item(
+                Key={"key_": "autoplayer_short_settings"},
+                UpdateExpression="SET current_invocation = :current_invocation",
+                ExpressionAttributeValues={
+                    ":current_invocation": 0
+                }
+            )
     c=0
+    accounts = []
     accounts_to_quest = []
     account_groups = []
     accounts_table = init_account_table()
     if setup == "traditional":
-        accounts_to_quest += get_accounts("mining")
-        accounts_to_quest += get_accounts("gardening")
+        accounts += get_accounts("mining")
+        accounts += get_accounts("gardening")
     elif setup == "short":
-        accounts_to_quest += get_accounts("fishing")
-        accounts_to_quest += get_accounts("foraging")
-    for account in accounts_to_quest:
+        accounts += get_accounts("fishing")
+        accounts += get_accounts("foraging")
+    for account in accounts:
         if int(account, 16)%target_invocation != current_invocation: continue
         accounts_table.update_item(
             Key={"address_": account},
