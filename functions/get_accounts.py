@@ -12,14 +12,14 @@ def init_account_table():
 
     return my_session.resource('dynamodb').Table("dfk-autoplayer-accounts")
 
-def get_accounts(professions):
+def get_accounts(profession):
     accounts = []
     account_table = init_account_table()
     scan_response = account_table.scan(
-            FilterExpression="enabled_quester = :enabled AND profession IN (:professions)",
+            FilterExpression="enabled_quester = :enabled AND profession = :profession",
             ExpressionAttributeValues={
                 ":enabled": True,
-                ":professions": professions
+                ":profession": profession
             })
     for item in scan_response["Items"]:
         accounts.append(item["address_"])

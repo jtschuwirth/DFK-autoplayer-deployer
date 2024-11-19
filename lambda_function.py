@@ -37,9 +37,11 @@ def handler(event, context):
     account_groups = []
     accounts_table = init_account_table()
     if setup == "traditional":
-        accounts_to_quest = get_accounts(["mining", "gardening"])
+        accounts_to_quest += get_accounts("mining")
+        accounts_to_quest += get_accounts("gardening")
     elif setup == "short":
-        accounts_to_quest = get_accounts(["fishing", "foraging"])
+        accounts_to_quest += get_accounts("fishing")
+        accounts_to_quest += get_accounts("foraging")
     for account in accounts_to_quest:
         if int(account, 16)%target_invocation != current_invocation: continue
         accounts_table.update_item(
